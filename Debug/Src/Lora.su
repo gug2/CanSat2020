@@ -1,0 +1,9 @@
+Lora.c:72:9:lora_singleTransfer	40	static
+Lora.c:86:6:lora_writeRegister	0	static
+Lora.c:90:9:lora_readRegister	0	static
+Lora.c:94:5:lora_begin	8	static
+Lora.c:175:5:lora_endPacket	8	static
+Lora.c:187:5:lora_isTransmit	8	static
+Lora.c:160:5:lora_beginPacket	8	static
+Lora.c:202:9:lora_writeBuf	24	static
+Lora.c:198:9:lora_write	16	static

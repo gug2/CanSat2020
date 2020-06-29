@@ -1,0 +1,16 @@
+sx1276-LoRa.c:268:6:SX1276LoRaSetDefaults	0	static
+sx1276-LoRa.c:275:6:SX1276LoRaReset	8	static
+sx1276-LoRa.c:290:6:SX1276LoRaSetOpMode	16	static
+sx1276-LoRa.c:204:6:SX1276LoRaInit	16	static
+sx1276-LoRa.c:319:9:SX1276LoRaGetOpMode	8	static
+sx1276-LoRa.c:326:9:SX1276LoRaReadRxGain	8	static
+sx1276-LoRa.c:332:8:SX1276LoRaReadRssi	16	static
+sx1276-LoRa.c:347:9:SX1276LoRaGetPacketRxGain	0	static
+sx1276-LoRa.c:352:8:SX1276LoRaGetPacketSnr	0	static
+sx1276-LoRa.c:357:8:SX1276LoRaGetPacketRssi	0	static
+sx1276-LoRa.c:362:6:SX1276LoRaStartRx	0	static
+sx1276-LoRa.c:367:6:SX1276LoRaGetRxPacket	0	static
+sx1276-LoRa.c:374:6:SX1276LoRaSetTxPacket	8	static
+sx1276-LoRa.c:389:9:SX1276LoRaGetRFState	0	static
+sx1276-LoRa.c:394:6:SX1276LoRaSetRFState	0	static
+sx1276-LoRa.c:407:10:SX1276LoRaProcess	40	static
