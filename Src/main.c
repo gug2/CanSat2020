@@ -49,6 +49,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "adc.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "sdio.h"
@@ -77,6 +78,7 @@ BMP280_HandleTypedef bmp280;
 float temp, pres, humi, alti, s_pres;
 struct bmi160_dev bmi160;
 struct bmi160_sensor_data bmi160Accel, bmi160Gyro;
+int usePhotoresist = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -156,11 +158,12 @@ int main(void)
   MX_FATFS_Init();
   MX_USART1_UART_Init();
   MX_SPI1_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   //rxIndex = 0;
   //HAL_UART_Receive_IT(&huart4, &rxTmp, 1);
 
-  bmi160.id = BMI160_I2C_ADDR;
+  /*bmi160.id = BMI160_I2C_ADDR;
   bmi160.interface = BMI160_I2C_INTF;
   bmi160.read = i2cRead;
   bmi160.write = i2cWrite;
@@ -183,10 +186,10 @@ int main(void)
   bmp280.i2c = &hi2c1;
   bmp280_init(&bmp280, &bmp280.params);
 
-  HAL_Delay(100);
+  HAL_Delay(100);*/
 
-  bmp280_read_float(&bmp280, NULL, &s_pres, NULL);
-  s_pres /= 133.322F; // to mm Hg
+  //bmp280_read_float(&bmp280, NULL, &s_pres, NULL);
+  //s_pres /= 133.322F; // to mm Hg
 
   // LORA
   /*lora_sx1276 lora;
@@ -220,7 +223,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
     //if(rxIndex == 512) {
-	  	result = bmi160_get_sensor_data(BMI160_ACCEL_SEL | BMI160_GYRO_SEL, &bmi160Accel, &bmi160Gyro, &bmi160);
+	  	/*result = bmi160_get_sensor_data(BMI160_ACCEL_SEL | BMI160_GYRO_SEL, &bmi160Accel, &bmi160Gyro, &bmi160);
     	bmp280_read_float(&bmp280, &temp, &pres, &humi);
 
     	pres /= 133.322F; // to mm Hg
@@ -237,12 +240,12 @@ int main(void)
 		gy = (bmi160Gyro.y * 2000.0F) / 32768.0F,
 		gz = (bmi160Gyro.z * 2000.0F) / 32768.0F;
 
-    	h = 0; m = 0; s = 0; ms = 0;
+    	h = 0; m = 0; s = 0; ms = 0;*/
     	//memset(gpsBuffer, 0, sizeof(gpsBuffer));
     	//sprintf(gpsBuffer, "%s", rxChars); // если вместо %2d написать %2hhd в часах, то показывают только их
     	//sscanf(strstr(rxChars, "$GNGGA,"), "$GNGGA,%2d%2d%2d.%2d\r\n", &h, &m, &s, &ms);
 
-    	sprintf(
+    	/*sprintf(
     	  rxCharBuf,
 		  "GPSDATA: %s; RMC: %d:%d:%d.%d, TIME: %d, TEMP: %.2fC, PRES: %.2fPa, HUMI: %.2f, ALTI: %.2fM, A: %.2f : %.2f : %.2f, G: %.2f : %.2f : %.2f;\r\n",
 		  rxChars, h, m, s, ms, HAL_GetTick(), temp, pres, humi, alti, ax, ay, az, gx, gy, gz
@@ -253,14 +256,14 @@ int main(void)
     	f_lseek(&file, f_size(&file));
     	f_write(&file, rxCharBuf, sizeof(rxCharBuf), &byteswritten);
     	f_close(&file);
-    	f_mount(NULL, "", 0);
+    	f_mount(NULL, "", 0);*/
 
     	//rxChars = 0;
     	//memset(rxBuffer, 0, sizeof(rxBuffer));
     	//rxIndex = 0;
     //}
     //HAL_UART_Receive_IT(&huart4, &rxTmp, 1);
-    HAL_Delay(100);
+    //HAL_Delay(100);
 
     // LORA
 	/*char dataBuf[64];
@@ -276,6 +279,33 @@ int main(void)
 	f_close(&file);
 	f_mount(NULL, "", 0);
 	HAL_Delay(500);*/
+
+	// ADC Photoresistor
+	HAL_ADCEx_InjectedStart(&hadc2);
+	HAL_ADCEx_InjectedPollForConversion(&hadc2, 1000);
+	uint32_t photoresistor = HAL_ADCEx_InjectedGetValue(&hadc2, 1);
+	HAL_ADCEx_InjectedStop(&hadc2);
+
+	// use photoresist for burning wire
+	if(photoresistor >= 2000 && usePhotoresist == 0) {
+		usePhotoresist = 1;
+		// enable PC6
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+		HAL_Delay(500);
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_RESET);
+		//
+	}
+	//
+
+	uint16_t size = sprintf(rxCharBuf, "PHOTORESIST: %d\r\n", photoresistor);
+	f_mount(&fs, "", 0);
+	f_open(&file, "file.txt", FA_OPEN_ALWAYS | FA_WRITE);
+	f_lseek(&file, f_size(&file));
+	f_write(&file, rxCharBuf, size, &byteswritten);
+	f_close(&file);
+	f_mount(NULL, "", 0);
+
+	HAL_Delay(100);
   }
   /* USER CODE END 3 */
 

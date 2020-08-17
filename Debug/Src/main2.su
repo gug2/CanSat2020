@@ -1,0 +1,6 @@
+main2.c:99:6:HAL_UART_RxCpltCallback	0	static
+main2.c:109:8:i2cWrite	24	static
+main2.c:114:8:i2cRead	24	static
+main2.c:211:6:SystemClock_Config	88	static
+main2.c:125:5:main	136	static
+main2.c:275:6:_Error_Handler	0	static
